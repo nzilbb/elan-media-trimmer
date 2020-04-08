@@ -2,7 +2,7 @@
 
 Utility for trimming the offset media linked to ELAN transcripts.
 
-(ELAN)[https://archive.mpi.nl/tla/elan]
+[ELAN](https://archive.mpi.nl/tla/elan)
 is a 3rd-party transcription/annotation tool for media files.
 
 When ELAN is used to transcribe interactions with multiple media files (e.g. an mp4 video
@@ -13,7 +13,7 @@ with the 'master' track.
 
 If you want to edit the media files so they all line up with the master 'master' track
 without any "Relative Offsets", in preparation for upload to
-(LaBB-CAT)[https://labbcat.canterbury.ac.nz/],
+[LaBB-CAT](https://labbcat.canterbury.ac.nz/),
 you can use *elan-media-trimmer* to do so. 
 
 Given an .eaf ELAN transcript, *elan-media-trimmer*:
