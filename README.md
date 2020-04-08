@@ -31,7 +31,7 @@ Given an .eaf ELAN transcript, *elan-media-trimmer*:
 * Java
 * ffmpeg
 
-## Usage
+### Usage
 
 *elan-media-trimmer* works as a command-line application:
 
