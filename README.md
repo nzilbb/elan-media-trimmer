@@ -24,11 +24,12 @@ Given an .eaf ELAN transcript, *elan-media-trimmer*:
 5. Updates the .eaf file so that the tracks no longer specify relative offsets.
 6. Renames media files to match the name of the transcript.
 
-## Prerequisites:
+## How to use the utility
+
+### Prerequisites:
+
 * Java
 * ffmpeg
-
-## How to use the utility
 
 *elan-media-trimmer* works as a command-line application:
 
@@ -39,3 +40,21 @@ java -jar elan-media-trimmer.jar *.eaf
 ```
 
 ...will process all ELAN transcripts in the current directory.
+
+## How to build from source
+
+### Prerequisites:
+
+* JDK
+* Apache ant
+
+## Building
+
+Use the following command to build:
+
+```
+ant
+```
+
+The output is:
+`bin/elan-media-trimmer.jar`
