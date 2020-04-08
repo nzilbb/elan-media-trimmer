@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ANNOTATION_DOCUMENT AUTHOR="" DATE="2020-03-13T10:43:59+12:00" FORMAT="3.0" VERSION="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv3.0.xsd">
+    <HEADER MEDIA_FILE="" TIME_UNITS="milliseconds">
+        <MEDIA_DESCRIPTOR MEDIA_URL="file:///U:/somewhere/test-video.wav" MIME_TYPE="audio/x-wav" RELATIVE_MEDIA_URL="./test-video.wav"/>
+        <MEDIA_DESCRIPTOR MEDIA_URL="file:///U:/somewhere/test-video.mp4" MIME_TYPE="video/mp4" RELATIVE_MEDIA_URL="./test-video.mp4" TIME_ORIGIN="500"/>
+        <PROPERTY NAME="URN">urn:nl-mpi-tools-elan-eaf:70181d77-76a1-42eb-88b3-8ccaa5f6feba</PROPERTY>
+        <PROPERTY NAME="lastUsedAnnotationId">250</PROPERTY>
+    </HEADER>
+    <TIME_ORDER>
+        <TIME_SLOT TIME_SLOT_ID="ts1" TIME_VALUE="0"/>
+        <TIME_SLOT TIME_SLOT_ID="ts2" TIME_VALUE="820"/>
+        <TIME_SLOT TIME_SLOT_ID="ts3" TIME_VALUE="1040"/>
+        <TIME_SLOT TIME_SLOT_ID="ts4" TIME_VALUE="1899"/>
+        <TIME_SLOT TIME_SLOT_ID="ts5" TIME_VALUE="2911"/>
+    </TIME_ORDER>
+    <TIER ANNOTATOR="Robert Fromont" LINGUISTIC_TYPE_REF="default-lt" PARTICIPANT="Maxwell Smart" TIER_ID="LY963">
+        <ANNOTATION>
+            <ALIGNABLE_ANNOTATION ANNOTATION_ID="a183" TIME_SLOT_REF1="ts1" TIME_SLOT_REF2="ts2">
+                <ANNOTATION_VALUE>yeah . yeah</ANNOTATION_VALUE>
+            </ALIGNABLE_ANNOTATION>
+        </ANNOTATION>
+        <ANNOTATION>
+            <ALIGNABLE_ANNOTATION ANNOTATION_ID="a184" TIME_SLOT_REF1="ts4" TIME_SLOT_REF2="ts5">
+                <ANNOTATION_VALUE>cool . okay</ANNOTATION_VALUE>
+            </ALIGNABLE_ANNOTATION>
+        </ANNOTATION>
+    </TIER>
+    <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="comment"/>
+    <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="type"/>
+    <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="place"/>
+    <LINGUISTIC_TYPE GRAPHIC_REFERENCES="false" LINGUISTIC_TYPE_ID="default-lt" TIME_ALIGNABLE="true"/>
+    <CONSTRAINT DESCRIPTION="Time subdivision of parent annotation's time interval, no time gaps allowed within this interval" STEREOTYPE="Time_Subdivision"/>
+    <CONSTRAINT DESCRIPTION="Symbolic subdivision of a parent annotation. Annotations refering to the same parent are ordered" STEREOTYPE="Symbolic_Subdivision"/>
+    <CONSTRAINT DESCRIPTION="1-1 association with a parent annotation" STEREOTYPE="Symbolic_Association"/>
+    <CONSTRAINT DESCRIPTION="Time alignable annotations within the parent annotation's time interval, gaps are allowed" STEREOTYPE="Included_In"/>
+</ANNOTATION_DOCUMENT>
