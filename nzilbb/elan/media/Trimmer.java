@@ -110,8 +110,6 @@ public class Trimmer {
       xpath = xpathFactory.newXPath();
       transformerFactory = TransformerFactory.newInstance();
       transformer = transformerFactory.newTransformer();
-      // transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-      // transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
    }
    
    /**
@@ -169,34 +167,38 @@ public class Trimmer {
    public boolean processTranscript(File eaf) {
       verboseMessage("Transcript: " + eaf.getPath());
       String nameWithoutExtension = eaf.getName().replaceAll("\\.[^.]+$", "");
-      File backupEaf = backup(eaf);
-      if (backupEaf == null) {
-         System.out.println("ERROR: Could not back up " + eaf.getPath());
-         return false;
+      File dir = new File(eaf.getParentFile(), "trimmer");
+      if (!dir.exists()) {
+         if (!dir.mkdir()) {
+            System.err.println(
+               "ERROR: could not create output directory " + dir.getPath());
+            // this is fatal
+            return false; 
+         }
       }
-
+      
       try {
          // parse XML
-         Document document = builder.parse(new FileInputStream(backupEaf));
+         Document document = builder.parse(new FileInputStream(eaf));
          
          // get MEDIA_DESCRIPTOR elements
          NodeList mediaDescriptors = (NodeList)xpath.evaluate(
             "//MEDIA_DESCRIPTOR", document, XPathConstants.NODESET);
-
+         
          // for each media file
-         for (int d = 0; d < mediaDescriptors.getLength(); d++)
-         {
+         for (int d = 0; d < mediaDescriptors.getLength(); d++) {
+            
             Node descriptor = mediaDescriptors.item(d);
 
             // get the URLs and origin
             Attr mediaUrl = (Attr)descriptor.getAttributes().getNamedItem("MEDIA_URL");
             Attr relativeMediaUrl = (Attr)descriptor.getAttributes().getNamedItem("RELATIVE_MEDIA_URL");
             Attr timeOrigin =  (Attr)descriptor.getAttributes().getNamedItem("TIME_ORIGIN");
-
+            
             // Find media file...
             
             File media = findMedia(eaf, mediaUrl, relativeMediaUrl);
-
+            
             if (media == null) {
                if (timeOrigin == null) {
                   System.err.println(
@@ -208,18 +210,9 @@ public class Trimmer {
                   return false; 
                }
             } else { // media found
-
-               // rename to fff-original.xxx
-               File backupVersion = backup(media);
-               if (backupVersion == null) {
-                  System.out.println("ERROR: Could not back up " + media.getPath());
-                  return false;
-               }
-               verboseMessage("Media backup: " + backupVersion.getName());
-               media = backupVersion;
                
                String extension = media.getName().replaceAll(".*(\\.[^.]+)$","$1");
-               File newMediaFile = new File(eaf.getParentFile(), nameWithoutExtension + extension);
+               File newMediaFile = new File(dir, nameWithoutExtension + extension);
                verboseMessage("New media file name: " + newMediaFile.getPath());
 
                // create the media file...
@@ -236,7 +229,6 @@ public class Trimmer {
                   // no time origin, so just copy the file
                   Files.copy(media.toPath(), newMediaFile.toPath(),
                              StandardCopyOption.REPLACE_EXISTING);
-
                }
 
                // update the descriptor
@@ -254,21 +246,16 @@ public class Trimmer {
          } // next media descriptor
 
          // save .eaf with new media files and no TIME_ORIGINs
+         File newEaf = new File(dir, eaf.getName());
          DOMSource source = new DOMSource(document);
-         FileWriter fw = new FileWriter(eaf);
+         FileWriter fw = new FileWriter(newEaf);
          StreamResult result = new StreamResult(fw);
          transformer.transform(source, result);
-
+         
       } catch (Exception x) {
          System.err.println("ERROR: " + eaf.getName() + ": " + x);
          x.printStackTrace(System.err);
          return false;
-      } finally {
-         // if something failed, eaf won't exist, so restore the backup
-         if (!eaf.exists()) {
-            verboseMessage("Restoring: " + eaf.getName());
-            backupEaf.renameTo(eaf);
-         }
       }
       return true;
    } // end of processTranscript()
@@ -323,26 +310,6 @@ public class Trimmer {
 
       return media;
    } // end of findMedia()
-   
-   /**
-    * Rename the given file as a backup, if doesn't already exist.
-    * <p>If the backup file already exists, no renaming is done, and the existing file is returned.
-    * @param f The file to back up.
-    * @return The backup file name, or null if f doesn't exist or renaming failed.
-    */
-   public File backup(File f) {
-      if (!f.exists()) return null;
-      
-      String nameWithoutExtension = f.getName().replaceAll("\\.[^.]+$", "");
-      String extension = f.getName().replaceAll(".*(\\.[^.]+)$","$1");
-      File backup = new File(f.getParentFile(), nameWithoutExtension + "-original" + extension);
-      if (!backup.exists()) {
-         if (!f.renameTo(backup)) {
-            return null;
-         }
-      }
-      return backup;
-   } // end of backup()
    
    /**
     * Prints the command-line parameter info for the utility.
