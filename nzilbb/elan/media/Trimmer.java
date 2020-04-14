@@ -216,19 +216,39 @@ public class Trimmer {
                verboseMessage("New media file name: " + newMediaFile.getPath());
 
                // create the media file...
-               if (timeOrigin == null) {
-                  // TODO if it's video, resample for web
-                  // no time origin, so just copy the file
-                  Files.copy(media.toPath(), newMediaFile.toPath(),
-                             StandardCopyOption.REPLACE_EXISTING);
+               if (timeOrigin == null) { // no time origin...
+                  // if it's video, resample for web
+                  if (media.getName().endsWith(".mp4")) {
+                     verboseMessage("Resample: " + media.getPath());
+                     Ffmpeg ffmpeg = new Ffmpeg()
+                        .setInputFile(media)
+                        .setOutputFile(newMediaFile);
+                     ffmpeg.setVerbose(verbose);
+                     
+                     ffmpeg.resampleForWeb();
+                     ffmpeg.run();
+                  } else { // not mp4
+                     // just copy the file
+                     verboseMessage("Copy: " + media.getPath());
+                     Files.copy(media.toPath(), newMediaFile.toPath(),
+                                StandardCopyOption.REPLACE_EXISTING);
+                  }
                } else {
-                  // TODO trim
-                  long msToTrim = Long.parseLong(timeOrigin.getValue());
-                  double secsToTrim = (double)msToTrim / 1000;
-                  System.out.println("TODO trim " + secsToTrim + " seconds off the start");
-                  // no time origin, so just copy the file
-                  Files.copy(media.toPath(), newMediaFile.toPath(),
-                             StandardCopyOption.REPLACE_EXISTING);
+                  // trim
+                  verboseMessage("Trim: " + media.getPath());
+                  Ffmpeg ffmpeg = new Ffmpeg()
+                     .setInputFile(media)
+                     .setOutputFile(newMediaFile);
+                  ffmpeg.setVerbose(verbose);
+
+                  // if it's video, resample for web
+                  if (media.getName().endsWith(".mp4")) {
+                     ffmpeg.resampleForWeb();
+                  }
+
+                  ffmpeg.trimStartMS(Long.parseLong(timeOrigin.getValue()));
+                  
+                  ffmpeg.run();
                }
 
                // update the descriptor
