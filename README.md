@@ -17,12 +17,13 @@ without any "Relative Offsets", in preparation for upload to
 you can use *elan-media-trimmer* to do so. 
 
 Given an .eaf ELAN transcript, *elan-media-trimmer*:
-1. Takes a backup copy of the transcript and all media.
-2. Analyzes the .eaf looking for tracks with a relative offset.
-3. Edits each such media file, trimming off corresponding content at the start of the media.
-4. Resamples mp4 videos for web delivery.
-5. Updates the .eaf file so that the tracks no longer specify relative offsets.
-6. Renames media files to match the name of the transcript.
+1. Analyzes the .eaf looking for tracks with a relative offset.
+2. Edits each such media file, trimming off corresponding content at the start of the media.
+3. Resamples mp4 videos for web delivery.
+4. Updates the .eaf file so that the tracks no longer specify relative offsets.
+5. Renames media files to match the name of the transcript.
+6. Saves all changed files in a subdirectory called `trimmer` (no original files are
+   harmed in the process of editing transcripts/media).
 
 ## How to use the utility
 
