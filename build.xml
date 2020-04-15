@@ -54,9 +54,12 @@
       </manifest>
       <!-- include source code -->
       <fileset dir="${src}" includes="${srcfiles}" />
+      <!-- include icon -->
+      <fileset dir="${src}" includes="**/*.png" />
       <!-- include this build file -->
       <fileset dir="." includes="build.xml" />      
     </jar>
+    <chmod file="${dist}/${ant.project.name}.jar" perm="ugo+x"/>
     <delete dir="${build}"/>
   </target>
 

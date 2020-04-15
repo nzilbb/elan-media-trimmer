@@ -54,7 +54,16 @@ public class Trimmer {
    /** Program entrypoint */
    public static void main(String[] argv) {
       try {
-         new Trimmer().processArguments(argv);
+         Trimmer trimmer = new Trimmer();
+         trimmer.processArguments(argv);
+         if (trimmer.transcripts != null && trimmer.transcripts.size() > 0) {
+            // process transcripts
+            trimmer.processTranscripts();
+         } else { // no transcripts, try interactive mode
+            new TrimmerGui()
+               .setTrimmer(trimmer)
+               .start();
+         }
       } catch(Throwable exception) {
          System.err.println("Unexpected error: " + exception);
          exception.printStackTrace(System.err);
@@ -140,13 +149,6 @@ public class Trimmer {
                }
             }
          } // next argument
-
-         // process transcripts
-         if (transcripts.size() == 0) {
-            System.out.println("There are no transcript to process.");
-         } else {
-            processTranscripts();
-         }
       }      
    } // end of processArguments()
    
@@ -162,18 +164,18 @@ public class Trimmer {
    /**
     * Process a single transcript.
     * @param eaf Transcript file.
-    * @return true if successful, false otherwise.
+    * @return null if successful, an error message otherwise.
     */
-   public boolean processTranscript(File eaf) {
+   public String processTranscript(File eaf) {
       verboseMessage("Transcript: " + eaf.getPath());
       String nameWithoutExtension = eaf.getName().replaceAll("\\.[^.]+$", "");
       File dir = new File(eaf.getParentFile(), "trimmer");
       if (!dir.exists()) {
          if (!dir.mkdir()) {
-            System.err.println(
-               "ERROR: could not create output directory " + dir.getPath());
+            String error = "ERROR: could not create output directory " + dir.getPath();
+            System.err.println(error);
             // this is fatal
-            return false; 
+            return error; 
          }
       }
       
@@ -204,10 +206,11 @@ public class Trimmer {
                   System.err.println(
                      "WARNING: could not find media " + mediaUrl + " ("+relativeMediaUrl+")");
                } else {
-                  System.err.println(
-                     "ERROR: could not find media " + mediaUrl + " ("+relativeMediaUrl+")");
+                  String error = "ERROR: could not find media " + mediaUrl
+                     + " ("+relativeMediaUrl+")";
+                  System.err.println(error);
                   // this is fatal - the file needs to be edited and we can't find it
-                  return false; 
+                  return error; 
                }
             } else { // media found
                
@@ -226,7 +229,14 @@ public class Trimmer {
                      ffmpeg.setVerbose(verbose);
                      
                      ffmpeg.resampleForWeb();
+                     
                      ffmpeg.run();
+                     if (ffmpeg.getExe() == null) {
+                        String error = "ERROR: could not find ffmpeg";
+                        System.err.println(error);
+                        // this is fatal
+                        return error; 
+                     }
                   } else { // not mp4
                      // just copy the file
                      verboseMessage("Copy: " + media.getPath());
@@ -249,6 +259,12 @@ public class Trimmer {
                   ffmpeg.trimStartMS(Long.parseLong(timeOrigin.getValue()));
                   
                   ffmpeg.run();
+                  if (ffmpeg.getExe() == null) {
+                     String error = "ERROR: could not find ffmpeg";
+                     System.err.println(error);
+                     // this is fatal
+                     return error; 
+                  }
                }
 
                // update the descriptor
@@ -273,11 +289,12 @@ public class Trimmer {
          transformer.transform(source, result);
          
       } catch (Exception x) {
-         System.err.println("ERROR: " + eaf.getName() + ": " + x);
+         String error = "ERROR: " + eaf.getName() + ": " + x;
+         System.err.println(error);
          x.printStackTrace(System.err);
-         return false;
+         return error;
       }
-      return true;
+      return null;
    } // end of processTranscript()
    
    /**

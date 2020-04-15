@@ -27,12 +27,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.Properties;
 import java.util.Vector;
-
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
+import javax.swing.JFileChooser;
 
 /**
  * Proxy for ffmpeg invocation.
@@ -257,8 +257,20 @@ public class Ffmpeg extends Execution {
          }
       }
 
-      // ask the user? TODO
-
+      if (exe == null) {
+      // ask the user?
+         try {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Please locate the program 'ffmpeg'");
+            int returnVal = chooser.showOpenDialog(null);
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+               setExe(chooser.getSelectedFile());
+            }
+         } catch(Throwable t) {
+            System.err.println("Could not use GUI to ask user for file: " + t);
+            t.printStackTrace(System.err);
+         }
+      }
       return this;
    }
 
