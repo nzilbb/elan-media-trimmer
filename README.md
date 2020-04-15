@@ -29,12 +29,30 @@ Given an .eaf ELAN transcript, *elan-media-trimmer*:
 
 ### Prerequisites:
 
-* Java
-* ffmpeg
+* [Java](https://www.java.com/)
+* [ffmpeg](https://ffmpeg.org/)
 
 ### Usage
 
-*elan-media-trimmer* works as a command-line application:
+*elan-media-trimmer* has a graphical user interface, so on most systems with Java
+installed, you can simply double-click on the `elan-media-trimmer.jar` file to run it.
+
+On Apple OS X systems, the first time you do this, you'll see a message that the file
+can't be opened. To fix this:
+
+1. Click the Apple icon in the top left corner of the screen.
+2. Select *System Preferences*
+3. Click *Security & Privacy*  
+      Near the bottom it says *'elan-media-trimer.jar' was blocked from opening because it
+      is not from an identified developer.*
+4. Click *Open Anyway*  
+      You may see another warning about the program being downloaded from the internet.
+5. Click *Open*
+
+Once opened, you can drag ELAN .eaf transcripts on to the window, and click the *Trim*
+button to process them.
+
+*elan-media-trimmer* also works as a command-line application:
 
 The following command:
 
