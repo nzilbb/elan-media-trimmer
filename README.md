@@ -52,6 +52,8 @@ can't be opened. To fix this:
 Once opened, you can drag ELAN .eaf transcripts on to the window, and click the *Trim*
 button to process them.
 
+![Screenshot of elan-media-trimmer](https://raw.githubusercontent.com/nzilbb/elan-media-trimmer/master/resources/elan-media-trimmer-gui.png)
+ 
 *elan-media-trimmer* also works as a command-line application:
 
 The following command:
