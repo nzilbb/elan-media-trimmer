@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.net.URI;
+import java.net.URL;
+import java.util.jar.JarFile;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
@@ -110,15 +112,39 @@ public class Trimmer {
     * @param newTranscripts A list of .eaf files to process.
     */
    public Trimmer setTranscripts(List<File> newTranscripts) { transcripts = newTranscripts; return this; }
+   
+   /**
+    * Version of Trimmer.
+    * @see #getVersion()
+    */
+   protected String version = "?";
+   /**
+    * Getter for {@link #version}: Version of Trimmer.
+    * @return Version of Trimmer.
+    */
+   public String getVersion() { return version; }
 
    /** Constructor */
    public Trimmer() throws ParserConfigurationException, TransformerConfigurationException {
+      
+      // set up XML stuff
       builderFactory = DocumentBuilderFactory.newInstance();
       builder = builderFactory.newDocumentBuilder();
       xpathFactory = XPathFactory.newInstance();
       xpath = xpathFactory.newXPath();
       transformerFactory = TransformerFactory.newInstance();
       transformer = transformerFactory.newTransformer();
+
+      // get our version info
+      try {
+         URL thisClassUrl = getClass().getResource(getClass().getSimpleName() + ".class");
+         if (thisClassUrl.toString().startsWith("jar:")) {
+            URI thisJarUri = new URI(thisClassUrl.toString().replaceAll("jar:(.*)!.*","$1"));
+            JarFile thisJarFile = new JarFile(new File(thisJarUri));
+            version = thisJarFile.getComment();
+         }
+      } catch (Throwable t) {
+      }      
    }
    
    /**
@@ -136,6 +162,8 @@ public class Trimmer {
          for (String arg : argv) {
             if (arg.equals("-v")) {
                verbose = true;
+            } else if (arg.equals("--version")) {
+               System.err.println(version);
             } else {
                File transcript = new File(arg);
                if (!transcript.exists()) {
@@ -352,7 +380,11 @@ public class Trimmer {
    private void printUsage() {
       System.err.println("Utility for trimming the offset media linked to ELAN transcripts.");
       System.err.println("Usage:");
-      System.err.println("java -jar elan-media-trimmer.jar file1.eaf [file2.eaf ...]");
+      System.err.println(
+         "java -jar elan-media-trimmer.jar [-v] [--version] file1.eaf [file2.eaf ...]");
+      System.err.println("Switches:");
+      System.err.println("\t-v        Verbose output");
+      System.err.println("\t--version Print version");
    } // end of printUsage()
    
    /**
