@@ -60,6 +60,8 @@
       <fileset dir="." includes="build.xml" />      
       <!-- and the configuration file -->
       <fileset dir="." includes="config.xml" />      
+      <!-- licence -->
+      <fileset dir="." includes="LICENSE" />      
     </jar>
     <chmod file="${dist}/${ant.project.name}.jar" perm="ugo+x"/>
     <delete dir="${build}"/>
