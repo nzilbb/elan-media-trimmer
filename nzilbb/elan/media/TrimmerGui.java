@@ -236,6 +236,7 @@ public class TrimmerGui {
          System.setOut(out);
          System.setErr(out);
          System.out.println("Started: " + new Date());
+         System.out.println(trimmer.getVersionInformation());
       } catch(FileNotFoundException exception) {
       }
       
