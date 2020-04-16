@@ -33,6 +33,7 @@ import java.time.Duration;
 import java.util.Properties;
 import java.util.Vector;
 import javax.swing.JFileChooser;
+import nzilbb.util.Execution;
 
 /**
  * Proxy for ffmpeg invocation.

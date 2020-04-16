@@ -114,7 +114,7 @@ public class TrimmerGui {
    public void init()
    {
       // create window...
-      frame = new JFrame("ELAN Media Trimmer ("+trimmer.getVersion()+")");
+      frame = new JFrame("ELAN Media Trimmer ("+trimmer.getVersionInformation()+")");
       frame.getContentPane().setLayout(new BorderLayout());
       frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
       Toolkit toolkit = frame.getToolkit();

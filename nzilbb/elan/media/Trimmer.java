@@ -47,31 +47,30 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import nzilbb.util.CommandLineProgram;
+import nzilbb.util.ProgramDescription;
+import nzilbb.util.Switch;
 
 /**
  * Utility for trimming the offset media linked to ELAN transcripts.
  */
-public class Trimmer {
+@ProgramDescription(value="Utility for trimming the offset media linked to ELAN transcripts",arguments="file1.eaf [file2.eaf ...]")
+public class Trimmer extends CommandLineProgram {
    
    /** Program entrypoint */
    public static void main(String[] argv) {
       try {
          Trimmer trimmer = new Trimmer();
          trimmer.processArguments(argv);
-         if (trimmer.transcripts != null && trimmer.transcripts.size() > 0) {
-            // process transcripts
-            trimmer.processTranscripts();
-         } else { // no transcripts, try interactive mode
-            new TrimmerGui()
-               .setTrimmer(trimmer)
-               .start();
-         }
+         trimmer.start();
       } catch(Throwable exception) {
          System.err.println("Unexpected error: " + exception);
          exception.printStackTrace(System.err);
       }
    }
 
+   // Attributes
+   
    private DocumentBuilderFactory builderFactory;
    private DocumentBuilder builder;
    private XPathFactory xpathFactory;
@@ -84,17 +83,18 @@ public class Trimmer {
     * @see #getVerbose()
     * @see #setVerbose(boolean)
     */
-   protected boolean verbose;
+   protected Boolean verbose = Boolean.FALSE;
    /**
     * Getter for {@link #verbose}: Whether to print verbose output.
     * @return Whether to print verbose output.
     */
-   public boolean getVerbose() { return verbose; }
+   public Boolean getVerbose() { return verbose; }
    /**
     * Setter for {@link #verbose}: Whether to print verbose output.
     * @param newVerbose Whether to print verbose output.
     */
-   public Trimmer setVerbose(boolean newVerbose) { verbose = newVerbose; return this; }
+   @Switch("Whether to print verbose output")
+   public Trimmer setVerbose(Boolean newVerbose) { verbose = newVerbose; return this; }
    
    /**
     * A list of .eaf files to process.
@@ -113,20 +113,8 @@ public class Trimmer {
     */
    public Trimmer setTranscripts(List<File> newTranscripts) { transcripts = newTranscripts; return this; }
    
-   /**
-    * Version of Trimmer.
-    * @see #getVersion()
-    */
-   protected String version = "?";
-   /**
-    * Getter for {@link #version}: Version of Trimmer.
-    * @return Version of Trimmer.
-    */
-   public String getVersion() { return version; }
-
    /** Constructor */
-   public Trimmer() throws ParserConfigurationException, TransformerConfigurationException {
-      
+   public Trimmer() throws ParserConfigurationException, TransformerConfigurationException {      
       // set up XML stuff
       builderFactory = DocumentBuilderFactory.newInstance();
       builder = builderFactory.newDocumentBuilder();
@@ -134,52 +122,45 @@ public class Trimmer {
       xpath = xpathFactory.newXPath();
       transformerFactory = TransformerFactory.newInstance();
       transformer = transformerFactory.newTransformer();
-
-      // get our version info
-      try {
-         URL thisClassUrl = getClass().getResource(getClass().getSimpleName() + ".class");
-         if (thisClassUrl.toString().startsWith("jar:")) {
-            URI thisJarUri = new URI(thisClassUrl.toString().replaceAll("jar:(.*)!.*","$1"));
-            JarFile thisJarFile = new JarFile(new File(thisJarUri));
-            version = thisJarFile.getComment();
-         }
-      } catch (Throwable t) {
-      }      
    }
    
    /**
     * Processes the given command line arguments.
     * @param argv
     */
-   public void processArguments(String[] argv)
-   {      
-      if (argv.length == 0) {
-         printUsage();
-      } else {
+   public boolean processArguments(String[] argv) {
+      // first process switches
+      if (!super.processArguments(argv)) return false;
          
-         // interpret command line arguments
-         transcripts = new Vector<File>();
-         for (String arg : argv) {
-            if (arg.equals("-v")) {
-               verbose = true;
-            } else if (arg.equals("--version")) {
-               System.err.println(version);
-            } else {
-               File transcript = new File(arg);
-               if (!transcript.exists()) {
-                  System.err.println(arg + ": not found.");
-               } else if (!transcript.getName().toLowerCase().endsWith(".eaf")) {
-                  System.err.println(arg + ": not an ELAN transcript.");
-               } else if (transcript.getName().matches(".*-original\\.eaf$")) {
-                  System.err.println(arg + ": Ignoring previously created backup.");
-               } else {
-                  transcripts.add(transcript);
-               }
-            }
-         } // next argument
-      }      
+      // interpret command line arguments
+      transcripts = new Vector<File>();
+      for (String arg: arguments) {
+         File transcript = new File(arg);
+         if (!transcript.exists()) {
+            error(arg + ": not found.");
+         } else if (!transcript.getName().toLowerCase().endsWith(".eaf")) {
+            error(arg + ": not an ELAN transcript.");
+         } else if (transcript.getName().matches(".*-original\\.eaf$")) {
+            error(arg + ": Ignoring previously created backup.");
+         } else {
+            transcripts.add(transcript);
+         }
+      } // next argument
+      return true;
    } // end of processArguments()
    
+   public void start() {
+      // were transcripts specified on the command line?
+      if (transcripts != null && transcripts.size() > 0) {
+         // process transcripts
+         processTranscripts();
+      } else { // no transcripts, try interactive mode
+         new TrimmerGui()
+            .setTrimmer(this)
+            .start();
+      }
+   }
+
    /**
     * Process the transcripts.
     */
@@ -201,7 +182,7 @@ public class Trimmer {
       if (!dir.exists()) {
          if (!dir.mkdir()) {
             String error = "ERROR: could not create output directory " + dir.getPath();
-            System.err.println(error);
+            error(error);
             // this is fatal
             return error; 
          }
@@ -231,12 +212,11 @@ public class Trimmer {
             
             if (media == null) {
                if (timeOrigin == null) {
-                  System.err.println(
-                     "WARNING: could not find media " + mediaUrl + " ("+relativeMediaUrl+")");
+                  error("WARNING: could not find media " + mediaUrl + " ("+relativeMediaUrl+")");
                } else {
                   String error = "ERROR: could not find media " + mediaUrl
                      + " ("+relativeMediaUrl+")";
-                  System.err.println(error);
+                  error(error);
                   // this is fatal - the file needs to be edited and we can't find it
                   return error; 
                }
@@ -260,7 +240,7 @@ public class Trimmer {
                      
                      ffmpeg.run();
                      if (ffmpeg.getExecutionError() != null) {
-                        System.err.println(ffmpeg.getExecutionError());
+                        error(ffmpeg.getExecutionError());
                         // this is fatal
                         return ffmpeg.getExecutionError(); 
                      }
@@ -287,7 +267,7 @@ public class Trimmer {
                   
                   ffmpeg.run();
                   if (ffmpeg.getExecutionError() != null) {
-                     System.err.println(ffmpeg.getExecutionError());
+                     error(ffmpeg.getExecutionError());
                      // this is fatal
                      return ffmpeg.getExecutionError(); 
                   }
@@ -316,8 +296,8 @@ public class Trimmer {
          
       } catch (Exception x) {
          String error = "ERROR: " + eaf.getName() + ": " + x;
-         System.err.println(error);
-         x.printStackTrace(System.err);
+         error("ERROR: " + eaf.getName());
+         error(x);
          return error;
       }
       return null;
@@ -347,7 +327,7 @@ public class Trimmer {
             }
             
          } catch(Exception x) {
-            System.err.println("Invalid MEDIA_URL: " + mediaUrl.getValue() + ": " + x);
+            error("Invalid MEDIA_URL: " + mediaUrl.getValue() + ": " + x);
          }
       } // try MEDIA_URL
       
@@ -366,26 +346,12 @@ public class Trimmer {
             }
             
          } catch(Exception x) {
-            System.err.println(
-               "Invalid RELATIVE_MEDIA_URL: " + relativeMediaUrl.getValue() + ": " + x);
+            error("Invalid RELATIVE_MEDIA_URL: " + relativeMediaUrl.getValue() + ": " + x);
          }               
       } // try MEDIA_URL
 
       return media;
    } // end of findMedia()
-   
-   /**
-    * Prints the command-line parameter info for the utility.
-    */
-   private void printUsage() {
-      System.err.println("Utility for trimming the offset media linked to ELAN transcripts.");
-      System.err.println("Usage:");
-      System.err.println(
-         "java -jar elan-media-trimmer.jar [-v] [--version] file1.eaf [file2.eaf ...]");
-      System.err.println("Switches:");
-      System.err.println("\t-v        Verbose output");
-      System.err.println("\t--version Print version");
-   } // end of printUsage()
    
    /**
     * Print a message if verbose == true.
@@ -394,6 +360,5 @@ public class Trimmer {
    public void verboseMessage(String message) {
       if (verbose) System.out.println(message);
    } // end of verboseMessage()
-
 
 }
