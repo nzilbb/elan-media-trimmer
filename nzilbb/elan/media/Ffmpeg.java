@@ -282,21 +282,20 @@ public class Ffmpeg extends Execution {
       // determine executable
       setExe();
       if (exe == null) {
-         System.err.println("Cannot execute ffmpeg: its location is unknown.");
-         return;
-      }
-      
-      Vector<String> originalArguments = arguments;
-      try {
-         // create a new arguments collection
-         arguments = getAllArguments();
-         // execute
-         super.run();
-
-      } finally {
-         // restore the original arguments, so we can re-run
-         arguments = originalArguments;
-      }
+         executionError = "Cannot execute ffmpeg: its location is unknown.";
+      } else {      
+         Vector<String> originalArguments = arguments;
+         try {
+            // create a new arguments collection
+            arguments = getAllArguments();
+            // execute
+            super.run();
+            
+         } finally {
+            // restore the original arguments, so we can re-run
+            arguments = originalArguments;
+         }
+      } // exe is set
    }
 
 }

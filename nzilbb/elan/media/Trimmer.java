@@ -231,11 +231,10 @@ public class Trimmer {
                      ffmpeg.resampleForWeb();
                      
                      ffmpeg.run();
-                     if (ffmpeg.getExe() == null) {
-                        String error = "ERROR: could not find ffmpeg";
-                        System.err.println(error);
+                     if (ffmpeg.getExecutionError() != null) {
+                        System.err.println(ffmpeg.getExecutionError());
                         // this is fatal
-                        return error; 
+                        return ffmpeg.getExecutionError(); 
                      }
                   } else { // not mp4
                      // just copy the file
@@ -259,11 +258,10 @@ public class Trimmer {
                   ffmpeg.trimStartMS(Long.parseLong(timeOrigin.getValue()));
                   
                   ffmpeg.run();
-                  if (ffmpeg.getExe() == null) {
-                     String error = "ERROR: could not find ffmpeg";
-                     System.err.println(error);
+                  if (ffmpeg.getExecutionError() != null) {
+                     System.err.println(ffmpeg.getExecutionError());
                      // this is fatal
-                     return error; 
+                     return ffmpeg.getExecutionError(); 
                   }
                }
 

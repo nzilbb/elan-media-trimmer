@@ -158,6 +158,24 @@ public class Execution implements Runnable {
     */
    public boolean getFinished() { return finished; }
 
+   /**
+    * Error preventing execution.
+    * @see #getExecutionError()
+    * @see #setExecutionError(String)
+    */
+   protected String executionError;
+   /**
+    * Getter for {@link #executionError}: Error preventing execution.
+    * @return Error preventing execution.
+    */
+   public String getExecutionError() { return executionError; }
+   /**
+    * Setter for {@link #executionError}: Error preventing execution.
+    * @param newExecutionError Error preventing execution.
+    */
+   public Execution setExecutionError(String newExecutionError) { executionError = newExecutionError; return this; }
+
+
    // Methods:
    
    /**
@@ -196,88 +214,93 @@ public class Execution implements Runnable {
    public void run() {
       running = true;
       finished = false;
+      executionError = null;
       input = new StringBuffer();
       error = new StringBuffer();
        
       Vector<String> vArguments = new Vector<String>();
-      vArguments.add(exe.getPath());
-      vArguments.addAll(arguments);
-      if (verbose) System.out.println("Execution: " + vArguments);
-      try {
-         
-	 setProcess(Runtime.getRuntime().exec(vArguments.toArray(new String[0])));
-	 
-	 InputStream inStream = process.getInputStream();
-	 InputStream errStream = process.getErrorStream();
-	 byte[] buffer = new byte[1024];
-	 
-	 // loop waiting for the process to exit, all the while reading from
-	 //  the input stream to stop it from hanging
-	 // there seems to be some overhead in querying the input streams,
-	 // so we need sleep while waiting to not barrage the process with
-	 // requests. However, we don't want to sleep too long for processes
-	 // that terminate quickly or we'll be needlessly waiting.
-	 // So we start with short sleeps, and exponentially increase the 
-	 // wait time, with a maximum sleep of 30 seconds
-	 int iMSSleep = 1;
-	 while (running) {
-	    try
-	    {
-	       int iReturnValue = process.exitValue();		     
-	       // if exitValue returns, the process has finished
-	       running = false;
-	    }
-	    catch(IllegalThreadStateException exception) { // still executing		     
-	       // sleep for a while
-	       try {
-		  Thread.sleep(iMSSleep);
-	       } catch(Exception sleepX) {
-		  System.err.println("Execution: " + exe.getName() + " Exception while sleeping: "
-				     + sleepX.toString() + "\r\n");	
-	       }
-	       iMSSleep *= 2; // backoff exponentially
-	       if (iMSSleep > 10000) iMSSleep = 10000; // max 10 sec
-	    }
-	    
-	    try {
-	       // data ready?
-	       int bytesRead = inStream.available();
-	       String sMessages = "";
-	       while(bytesRead > 0) {
-		  // if there's data coming, sleep a shorter time
-		  iMSSleep = 1;		     
-		  // write to the log file
-		  bytesRead = inStream.read(buffer);
-		  input.append(new String(buffer, 0, bytesRead));
-		  // data ready?
-		  bytesRead = inStream.available();
-	       } // next chunk of data	       
-	    } catch(IOException exception) {
-	       System.err.println("Execution: ERROR reading conversion input stream: "
-				  + exe.getName() + " - " + exception);
-	    }
-	    
-	    try {
-	       // data ready from error stream?
-	       int bytesRead = errStream.available();
-	       while(bytesRead > 0) {
-		  // if there's data coming, sleep a shorter time
-		  iMSSleep = 1;	    
-		  bytesRead = errStream.read(buffer);
-		  error.append(new String(buffer, 0, bytesRead));
-		  System.err.println("Execution: " + exe.getName() + ": " + new String(buffer, 0, bytesRead));
-		  // data ready?
-		  bytesRead = errStream.available();
-	       } // next chunk of data
-	    } catch(IOException exception) {
-	       System.err.println("Execution: ERROR reading conversion error stream: "
-				  + exe.getName() + " - " + exception);
-	    }
-	 } // running
-      } catch(IOException exception) {
-	 System.err.println("Execution: Could not execute: " + exception);
-	 error.append("Could not execute: " + exception);
-      }
+      if (exe == null) {
+         executionError = "No executable file set.";
+      } else {
+         vArguments.add(exe.getPath());
+         vArguments.addAll(arguments);
+         if (verbose) System.out.println("Execution: " + vArguments);
+         try {
+            
+            setProcess(Runtime.getRuntime().exec(vArguments.toArray(new String[0])));
+            
+            InputStream inStream = process.getInputStream();
+            InputStream errStream = process.getErrorStream();
+            byte[] buffer = new byte[1024];
+            
+            // loop waiting for the process to exit, all the while reading from
+            //  the input stream to stop it from hanging
+            // there seems to be some overhead in querying the input streams,
+            // so we need sleep while waiting to not barrage the process with
+            // requests. However, we don't want to sleep too long for processes
+            // that terminate quickly or we'll be needlessly waiting.
+            // So we start with short sleeps, and exponentially increase the 
+            // wait time, with a maximum sleep of 30 seconds
+            int iMSSleep = 1;
+            while (running) {
+               try
+               {
+                  int iReturnValue = process.exitValue();		     
+                  // if exitValue returns, the process has finished
+                  running = false;
+               }
+               catch(IllegalThreadStateException exception) { // still executing		     
+                  // sleep for a while
+                  try {
+                     Thread.sleep(iMSSleep);
+                  } catch(Exception sleepX) {
+                     System.err.println(
+                        "Execution: " + exe.getName() + " Exception while sleeping: "
+                        + sleepX.toString() + "\r\n");	
+                  }
+                  iMSSleep *= 2; // backoff exponentially
+                  if (iMSSleep > 10000) iMSSleep = 10000; // max 10 sec
+               }
+               
+               try {
+                  // data ready?
+                  int bytesRead = inStream.available();
+                  String sMessages = "";
+                  while(bytesRead > 0) {
+                     // if there's data coming, sleep a shorter time
+                     iMSSleep = 1;		     
+                     // write to the log file
+                     bytesRead = inStream.read(buffer);
+                     input.append(new String(buffer, 0, bytesRead));
+                     // data ready?
+                     bytesRead = inStream.available();
+                  } // next chunk of data	       
+               } catch(IOException exception) {
+                  System.err.println("Execution: ERROR reading conversion input stream: "
+                                     + exe.getName() + " - " + exception);
+               }
+               
+               try {
+                  // data ready from error stream?
+                  int bytesRead = errStream.available();
+                  while(bytesRead > 0) {
+                     // if there's data coming, sleep a shorter time
+                     iMSSleep = 1;	    
+                     bytesRead = errStream.read(buffer);
+                     error.append(new String(buffer, 0, bytesRead));
+                     System.err.println("Execution: " + exe.getName() + ": " + new String(buffer, 0, bytesRead));
+                     // data ready?
+                     bytesRead = errStream.available();
+                  } // next chunk of data
+               } catch(IOException exception) {
+                  System.err.println("Execution: ERROR reading conversion error stream: "
+                                     + exe.getName() + " - " + exception);
+               }
+            } // running
+         } catch(IOException exception) {
+            executionError = exception.getMessage();
+         }
+      } // exe is set
       finished = true;
    } // end of run()
 
