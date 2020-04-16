@@ -24,6 +24,7 @@ package nzilbb.elan.media;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
@@ -96,7 +97,6 @@ public class Trimmer extends CommandLineProgram {
    @Switch("Whether to print verbose output")
    public Trimmer setVerbose(Boolean newVerbose) { verbose = newVerbose; return this; }
    
-
    /**
     * Width, in pixels, of resampled videos.
     * @see #getVideoWidth()
@@ -114,6 +114,25 @@ public class Trimmer extends CommandLineProgram {
     */
    @Switch("Width, in pixels, of resampled videos - default is 720")
    public Trimmer setVideoWidth(Integer newVideoWidth) { videoWidth = newVideoWidth; return this; }
+
+
+   /**
+    * Directory where output files will be written.
+    * @see #getOutputDirectory()
+    * @see #setOutputDirectory(File)
+    */
+   protected File outputDirectory;
+   /**
+    * Getter for {@link #outputDirectory}: Directory where output files will be written.
+    * @return Directory where output files will be written.
+    */
+   public File getOutputDirectory() { return outputDirectory; }
+   /**
+    * Setter for {@link #outputDirectory}: Directory where output files will be written.
+    * @param newOutputDirectory Directory where output files will be written.
+    */
+   @Switch("Directory where output files will be written - default is a subdirectory called 'trimmer'")
+   public Trimmer setOutputDirectory(File newOutputDirectory) { outputDirectory = newOutputDirectory; return this; }
 
    /**
     * A list of .eaf files to process.
@@ -198,9 +217,13 @@ public class Trimmer extends CommandLineProgram {
    public String processTranscript(File eaf) {
       verboseMessage("Transcript: " + eaf.getPath());
       String nameWithoutExtension = eaf.getName().replaceAll("\\.[^.]+$", "");
-      File dir = new File(eaf.getParentFile(), "trimmer");
+      File dir = getOutputDirectory();
+      if (dir == null) dir = new File(eaf.getParentFile(), "trimmer");
+      
       if (!dir.exists()) {
-         if (!dir.mkdir()) {
+         try {
+            Files.createDirectory(dir.toPath());
+         } catch(IOException exception) {
             String error = "ERROR: could not create output directory " + dir.getPath();
             error(error);
             // this is fatal
