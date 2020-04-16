@@ -247,7 +247,7 @@ public class Trimmer extends CommandLineProgram {
             // get the URLs and origin
             Attr mediaUrl = (Attr)descriptor.getAttributes().getNamedItem("MEDIA_URL");
             Attr relativeMediaUrl = (Attr)descriptor.getAttributes().getNamedItem("RELATIVE_MEDIA_URL");
-            Attr timeOrigin =  (Attr)descriptor.getAttributes().getNamedItem("TIME_ORIGIN");
+            Attr timeOrigin = (Attr)descriptor.getAttributes().getNamedItem("TIME_ORIGIN");
             
             // Find media file...
             
