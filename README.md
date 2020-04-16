@@ -27,8 +27,7 @@ Given an .eaf ELAN transcript, *elan-media-trimmer*:
 
 ## How to use the utility
 
-The latest version is
-[here](https://github.com/nzilbb/elan-media-trimmer/releases/download/20200416.1741/elan-media-trimmer.jar)
+[The latest version can be downloaded from here](https://github.com/nzilbb/elan-media-trimmer/releases/download/20200416.1741/elan-media-trimmer.jar)
 
 ### Prerequisites:
 
