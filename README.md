@@ -64,6 +64,12 @@ java -jar elan-media-trimmer.jar *.eaf
 
 ...will process all ELAN transcripts in the current directory.
 
+For more information about command-line parameters:
+
+```
+java -jar elan-media-trimmer.jar --usage
+```
+
 ## How to build from source
 
 The source code is available at (https://github.com/nzilbb/elan-media-trimmer/), and is

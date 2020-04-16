@@ -154,7 +154,7 @@ public class Trimmer extends CommandLineProgram {
       if (transcripts != null && transcripts.size() > 0) {
          // process transcripts
          processTranscripts();
-      } else { // no transcripts, try interactive mode
+      } else if (!getUsage()) { // no transcripts, try interactive mode
          new TrimmerGui()
             .setTrimmer(this)
             .start();
