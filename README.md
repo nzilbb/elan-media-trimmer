@@ -66,12 +66,21 @@ java -jar elan-media-trimmer.jar *.eaf
 
 ## How to build from source
 
+The source code is available at (https://github.com/nzilbb/elan-media-trimmer/), and is
+also distributed in *elan-media-trimmer.jar*.
+
+To extract the source code from *elan-media-trimmer.jar*, run the following command:
+
+```
+java xf elan-media-trimmer.jar
+```
+
 ### Prerequisites:
 
 * JDK
 * Apache ant
 
-## Building
+### Building
 
 Use the following command to build:
 
@@ -81,3 +90,4 @@ ant
 
 The output is:
 `bin/elan-media-trimmer.jar`
+

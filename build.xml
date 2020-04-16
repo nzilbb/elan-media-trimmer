@@ -56,12 +56,11 @@
       <fileset dir="${src}" includes="${srcfiles}" />
       <!-- include icon -->
       <fileset dir="${src}" includes="**/*.png" />
-      <!-- include this build file -->
+      <!-- build files etc. -->
       <fileset dir="." includes="build.xml" />      
-      <!-- and the configuration file -->
       <fileset dir="." includes="config.xml" />      
-      <!-- licence -->
       <fileset dir="." includes="LICENSE" />      
+      <fileset dir="." includes="README.md" />      
     </jar>
     <chmod file="${dist}/${ant.project.name}.jar" perm="ugo+x"/>
     <delete dir="${build}"/>
