@@ -237,6 +237,7 @@ public class TrimmerGui {
          System.setErr(out);
          System.out.println("Started: " + new Date());
          System.out.println(trimmer.getVersionInformation());
+         trimmer.verboseMessage("Resampling videos to " + trimmer.getVideoWidth() + "px wide.");
       } catch(FileNotFoundException exception) {
       }
       

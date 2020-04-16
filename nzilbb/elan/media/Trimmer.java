@@ -96,6 +96,25 @@ public class Trimmer extends CommandLineProgram {
    @Switch("Whether to print verbose output")
    public Trimmer setVerbose(Boolean newVerbose) { verbose = newVerbose; return this; }
    
+
+   /**
+    * Width, in pixels, of resampled videos.
+    * @see #getVideoWidth()
+    * @see #setVideoWidth(Integer)
+    */
+   protected Integer videoWidth = 720;
+   /**
+    * Getter for {@link #videoWidth}: Width, in pixels, of resampled videos.
+    * @return Width, in pixels, of resampled videos.
+    */
+   public Integer getVideoWidth() { return videoWidth; }
+   /**
+    * Setter for {@link #videoWidth}: Width, in pixels, of resampled videos.
+    * @param newVideoWidth Width, in pixels, of resampled videos.
+    */
+   @Switch("Width, in pixels, of resampled videos - default is 720")
+   public Trimmer setVideoWidth(Integer newVideoWidth) { videoWidth = newVideoWidth; return this; }
+
    /**
     * A list of .eaf files to process.
     * @see #getTranscripts()
@@ -152,6 +171,7 @@ public class Trimmer extends CommandLineProgram {
    public void start() {
       // were transcripts specified on the command line?
       if (transcripts != null && transcripts.size() > 0) {
+         verboseMessage("Resampling videos to " + getVideoWidth() + "px wide.");
          // process transcripts
          processTranscripts();
       } else if (!getUsage()) { // no transcripts, try interactive mode
@@ -236,7 +256,7 @@ public class Trimmer extends CommandLineProgram {
                         .setOutputFile(newMediaFile);
                      ffmpeg.setVerbose(verbose);
                      
-                     ffmpeg.resampleForWeb();
+                     ffmpeg.resampleForWeb(videoWidth);
                      
                      ffmpeg.run();
                      if (ffmpeg.getExecutionError() != null) {
@@ -260,7 +280,7 @@ public class Trimmer extends CommandLineProgram {
 
                   // if it's video, resample for web
                   if (media.getName().endsWith(".mp4")) {
-                     ffmpeg.resampleForWeb();
+                     ffmpeg.resampleForWeb(videoWidth);
                   }
 
                   ffmpeg.trimStartMS(Long.parseLong(timeOrigin.getValue()));
