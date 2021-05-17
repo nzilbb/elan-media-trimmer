@@ -23,7 +23,7 @@ package nzilbb.elan.media;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -234,7 +234,7 @@ public class Trimmer extends CommandLineProgram {
       try {
          // parse XML
          Document document = builder.parse(new FileInputStream(eaf));
-         
+
          // get MEDIA_DESCRIPTOR elements
          NodeList mediaDescriptors = (NodeList)xpath.evaluate(
             "//MEDIA_DESCRIPTOR", document, XPathConstants.NODESET);
@@ -333,8 +333,8 @@ public class Trimmer extends CommandLineProgram {
          // save .eaf with new media files and no TIME_ORIGINs
          File newEaf = new File(dir, eaf.getName());
          DOMSource source = new DOMSource(document);
-         FileWriter fw = new FileWriter(newEaf);
-         StreamResult result = new StreamResult(fw);
+         PrintWriter pw = new PrintWriter(newEaf, "UTF-8");
+         StreamResult result = new StreamResult(pw);
          transformer.transform(source, result);
          
       } catch (Exception x) {
