@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -232,13 +233,16 @@ public class TrimmerGui {
       // redirect stdout and stderr to a file
       File log = new File("elan-media-trimmer.log");
       try {
-         PrintStream out = new PrintStream(new FileOutputStream(log), true);
+         PrintStream out = new PrintStream(new FileOutputStream(log), true, "UTF-8");
+         System.out.println("Redirecting output to " + log.getPath());
+         System.out.flush();
          System.setOut(out);
          System.setErr(out);
          System.out.println("Started: " + new Date());
          System.out.println(trimmer.getVersionInformation());
          trimmer.verboseMessage("Resampling videos to " + trimmer.getVideoWidth() + "px wide.");
       } catch(FileNotFoundException exception) {
+      } catch(UnsupportedEncodingException exception) {
       }
       
       frame.setVisible(true);
